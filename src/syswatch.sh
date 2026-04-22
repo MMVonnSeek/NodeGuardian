@@ -1,65 +1,50 @@
 #!/bin/bash
 
-# ================================
-# InfraWatch - System Monitor
-# ================================
+CONFIG_FILE="/etc/nodeguardian/watch.conf"
+LOG_FILE="/var/log/nodeguardian.log"
 
-# Caminhos padrão (produção)
-CONFIG_FILE="/etc/infrawatch/watch.conf"
-LOG_FILE="/var/log/infrawatch.log"
-
-# ================================
-# Validação de configuração
-# ================================
+# Carrega config
 if [ -f "$CONFIG_FILE" ]; then
     source "$CONFIG_FILE"
 else
-    echo "Erro: Arquivo de configuração não encontrado em $CONFIG_FILE"
+    echo "Erro: Config não encontrada em $CONFIG_FILE"
     exit 1
 fi
 
-# ================================
-# Função de alerta (Telegram)
-# ================================
+# Função alerta
 send_alert() {
     local message="$1"
-
     curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
         -d chat_id="$TELEGRAM_CHAT_ID" \
         -d text="$message" \
         -d parse_mode="HTML" > /dev/null
 }
 
-# ================================
-# Coleta de métricas
-# ================================
-CPU_USAGE=$(top -bn1 | grep "Cpu(s)" | awk '{print $2 + $4}')
-MEM_USAGE=$(free | awk '/Mem:/ {printf("%.2f"), $3/$2 * 100}')
+# Métricas
+CPU_USAGE=$(awk '/^cpu / {usage=($2+$4)*100/($2+$4+$5)} END {print usage}' /proc/stat | tr ',' '.')
+MEM_USAGE=$(free | awk '/Mem:/ {print ($3/$2)*100}' | tr ',' '.')
 DISK_USAGE=$(df / | awk 'NR==2 {print $5}' | sed 's/%//')
 
 HOSTNAME=$(hostname)
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
 
-# ================================
-# Log estruturado
-# ================================
+# Segurança
+CPU_USAGE=${CPU_USAGE:-0}
+MEM_USAGE=${MEM_USAGE:-0}
+DISK_USAGE=${DISK_USAGE:-0}
+
+# Log
 echo "[$TIMESTAMP][$HOSTNAME] CPU:${CPU_USAGE}% MEM:${MEM_USAGE}% DISK:${DISK_USAGE}%" >> "$LOG_FILE"
 
-# ================================
-# Lógica de alerta
-# ================================
-
-# CPU
+# Alertas
 if (( $(echo "$CPU_USAGE > $CPU_LIMIT" | bc -l) )); then
-    send_alert "<b>Alerta de CPU</b>%0AHost: $HOSTNAME%0AUso: ${CPU_USAGE}% (Limite: ${CPU_LIMIT}%)%0A $TIMESTAMP"
+    send_alert "🚨 CPU alta - ${CPU_USAGE}%"
 fi
 
-# RAM
 if (( $(echo "$MEM_USAGE > $MEM_LIMIT" | bc -l) )); then
-    send_alert "<b>Alerta de RAM</b>%0AHost: $HOSTNAME%0AUso: ${MEM_USAGE}% (Limite: ${MEM_LIMIT}%)%0A $TIMESTAMP"
+    send_alert "🚨 RAM alta - ${MEM_USAGE}%"
 fi
 
-# Disco
 if (( DISK_USAGE > DISK_LIMIT )); then
-    send_alert "<b>Alerta de Disco</b>%0AHost: $HOSTNAME%0AUso: ${DISK_USAGE}% (Limite: ${DISK_LIMIT}%)%0A $TIMESTAMP"
+    send_alert "🚨 Disco cheio - ${DISK_USAGE}%"
 fi
