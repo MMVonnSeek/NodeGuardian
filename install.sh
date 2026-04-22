@@ -1,5 +1,3 @@
-#!/bin/bash
-
 echo "🔧 Instalando NodeGuardian..."
 
 # Atualiza pacotes e instala dependências

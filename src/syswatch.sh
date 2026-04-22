@@ -1,5 +1,3 @@
-#!/bin/bash
-
 CONFIG_FILE="/etc/nodeguardian/watch.conf"
 LOG_FILE="/var/log/nodeguardian.log"
 
