@@ -4,10 +4,10 @@
   
 ### Monitoramento Inteligente de Infraestrutura com Alertas em Tempo Real via Telegram
   
-<img src="https://img.shields.io/badge/Autor-Max Muller-darkblue?style=for-the-badge" />
-<img src="https://img.shields.io/badge/Shell-Bash-green?style=for-the-badge&logo=gnu-bash" />
-<img src="https://img.shields.io/badge/Linux-Compatible-orange?style=for-the-badge&logo=linux" />
-<img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Autor-Max Muller-darkred?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Shell-Bash-black?style=for-the-badge&logo=gnu-bash" />
+<img src="https://img.shields.io/badge/Linux-Compatible-darkred?style=for-the-badge&logo=linux" />
+<img src="https://img.shields.io/badge/License-MIT-black?style=for-the-badge" />
 
 <p align="center">
 <a href="#-visão-geral">Visão Geral</a> •
@@ -188,10 +188,6 @@ git push origin feature/nova-feature
 MIT License
 
 ---
-
-## Contato
-**Max Muller**
-- Linkedin: https://linkedin.com/in/max-muller-685705248/
 
 
 ## Posicionamento
